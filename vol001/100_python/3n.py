@@ -1,5 +1,7 @@
+import functools
 from sys import stdin
 
+@functools.lru_cache(None)
 def alg(n):
     i = 1
     while n > 1:
