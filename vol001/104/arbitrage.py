@@ -1,5 +1,4 @@
 from collections import deque
-DEBUG = False
 
 
 def find_profit(tcs):
@@ -9,15 +8,9 @@ def find_profit(tcs):
         pending_chains.append(([ctry], 1))
 
     while pending_chains:
-        if DEBUG:
-            print("Pending chains is", len(pending_chains), "long.")
         cur_path, cur_factor = pending_chains.popleft()
-        if DEBUG:
-            print("Treat:", cur_path, cur_factor)
         if len(cur_path) > len(tcs):
             # We are unable to get money
-            if DEBUG:
-                print("The current path is too long.")
             break
         from_currency = cur_path[-1]
         to_currency = cur_path[0]
@@ -27,16 +20,11 @@ def find_profit(tcs):
                 continue
             keep_factor = get_factor(tcs, from_currency, via_cur)
             check_factor = get_factor(tcs, via_cur, to_currency)
-            if DEBUG:
-                print("countries", from_currency, via_cur, to_currency,
-                      "factors", keep_factor, check_factor)
 
             new_factor = cur_factor * keep_factor
             new_path = cur_path + [via_cur]
             if new_factor * check_factor >= 1.01:
-                if DEBUG:
-                    print("PROFIT:", new_factor * check_factor)
-                return new_path + [from_currency]
+                return new_path + [to_currency]
             pending_chains.append((new_path, new_factor))
 
     return None
@@ -78,12 +66,8 @@ def main():
         tcs = get_input()
         if not tcs:
             break
-        if DEBUG:
-            print(tcs)
         result = find_profit(tcs)
         write_output(result)
-    if DEBUG:
-        print("Finished")
 
 
 if __name__ == '__main__':
