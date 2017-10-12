@@ -1,0 +1,90 @@
+from collections import deque
+DEBUG = False
+
+
+def find_profit(tcs):
+    # We'll need to find path using a Breath First Search (BFS)
+    pending_chains = deque()  # tuple: path-so-far, factor-so-far
+    for ctry in range(len(tcs)):
+        pending_chains.append(([ctry], 1))
+
+    while pending_chains:
+        if DEBUG:
+            print("Pending chains is", len(pending_chains), "long.")
+        cur_path, cur_factor = pending_chains.popleft()
+        if DEBUG:
+            print("Treat:", cur_path, cur_factor)
+        if len(cur_path) > len(tcs):
+            # We are unable to get money
+            if DEBUG:
+                print("The current path is too long.")
+            break
+        from_currency = cur_path[-1]
+        to_currency = cur_path[0]
+        for via_cur in range(len(tcs)):
+            # Try to add i to the path
+            if via_cur in [from_currency, to_currency]:
+                continue
+            keep_factor = get_factor(tcs, from_currency, via_cur)
+            check_factor = get_factor(tcs, via_cur, to_currency)
+            if DEBUG:
+                print("countries", from_currency, via_cur, to_currency,
+                      "factors", keep_factor, check_factor)
+
+            new_factor = cur_factor * keep_factor
+            new_path = cur_path + [via_cur]
+            if new_factor * check_factor >= 1.01:
+                if DEBUG:
+                    print("PROFIT:", new_factor * check_factor)
+                return new_path + [from_currency]
+            pending_chains.append((new_path, new_factor))
+
+    return None
+
+
+def get_factor(tcs, from_cur, to_cur):
+    assert from_cur != to_cur
+    if to_cur > from_cur:
+        factor = tcs[from_cur][to_cur - 1]
+    else:
+        factor = tcs[from_cur][to_cur]
+    return factor
+
+
+def get_input():
+    try:
+        raw = input()
+        if not raw:
+            return None
+    except EOFError:
+        return None
+    n = int(raw.split()[0])
+    tcs = []  # Currency exchanges (tipos de cambio)
+    for _ in range(n):
+        raw_line = input().split()[:n]
+        tcs.append(list(map(float, raw_line)))
+    return tcs
+
+
+def write_output(path):
+    if not path:
+        print("no arbitrage sequence exists")
+    else:
+        print(" ".join([str(country + 1) for country in path]))
+
+
+def main():
+    while True:
+        tcs = get_input()
+        if not tcs:
+            break
+        if DEBUG:
+            print(tcs)
+        result = find_profit(tcs)
+        write_output(result)
+    if DEBUG:
+        print("Finished")
+
+
+if __name__ == '__main__':
+    main()
