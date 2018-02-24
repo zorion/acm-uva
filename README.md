@@ -1,8 +1,8 @@
-# Haskell starting problems
+# TRACKING PROBLEM-SOLVING PROCESS
 
-Source of problems:
+I keep this repo for keeping my own track solving problems.
+I lost track in the past and I would like to start again.
 
-https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
 
 ## Disclaimer:
 
