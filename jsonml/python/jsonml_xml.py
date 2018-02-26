@@ -20,6 +20,7 @@ def from_XML_text(xml_text):
     """From an xml_text get the equivalent object."""
     return from_XML(etree.XML(xml_text))
 
+
 def from_XML(node):
     """From an xml node get the equivalent object."""
     result, tail = _from_XML_with_tail(node)
@@ -79,7 +80,93 @@ def test_from_xml_text():
                         'title': 'Some hover text.'}, 'Second Item'],
                 ['li',
                     ['span', {'class': 'code-example-third'}, 'Third'],
-                    'Item', ['br'], 'Foo', ['br'],
-                    'Bar']]
+                    # Notice the three "tails" are properly collected.
+                    'Item', ['br'], 'Foo', ['br'], 'Bar']]
     assert from_XML_text(text) == expected
     assert from_XML_text('<xml />') == ['xml']
+
+    complex_text = """
+    <table class="MyTable" style="background-color:yellow">
+      <tr>
+        <td class="MyTD" style="border:1px solid black">
+        #5D28D1</td>
+        <td class="MyTD" style="background-color:red">
+        Example text here</td>
+      </tr>
+      <tr>
+        <td class="MyTD" style="border:1px solid black">
+        #AF44EF</td>
+        <td class="MyTD" style="background-color:green">
+        127310656</td>
+      </tr>
+      <tr>
+        <td class="MyTD" style="border:1px solid black">
+        #AAD034</td>
+        <td class="MyTD" style="background-color:blue">
+        &nbsp;
+        <span style="background-color:maroon">&copy;</span>
+        &nbsp;
+          </td>
+      </tr>
+    </table>
+    """
+    complex_expected = """["html", ["body", [
+        "table", {
+            "class": "MyTable",
+            "style": "background-color:yellow"
+        },
+        [
+            "tr",
+            ["td", {
+                "class": "MyTD",
+                "style": "border:1px solid black"
+            },
+                "#5D28D1"
+            ],
+            ["td", {
+                "class": "MyTD",
+                "style": "background-color:red"
+            },
+                "Example text here"
+            ]
+        ],
+        [
+            "tr",
+            ["td", {
+                "class": "MyTD",
+                "style": "border:1px solid black"
+            },
+                "#AF44EF"
+            ],
+            ["td", {
+                "class": "MyTD",
+                "style": "background-color:green"
+            },
+                "127310656"
+            ]
+        ],
+        [
+            "tr",
+            ["td", {
+                "class": "MyTD",
+                "style": "border:1px solid black"
+            },
+                "#AAD034"
+            ],
+            ["td", {
+                "class": "MyTD",
+                "style": "background-color:blue"
+            },
+                "\u00A0",
+                ["span", {"style": "background-color:maroon"},
+                 "\u00A9"
+                 ],
+                "\u00A0"
+            ]
+        ]  
+    ]
+    ]]"""
+    assert 'HTML' in dir(etree), etree.__file__
+    result = from_XML(etree.HTML(complex_text))
+    import json
+    assert result == json.loads(complex_expected), result
