@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-"""This file creates a global JsonML object containing these methods:
+"""This package contains these methods:
 
-        jsonml_xml.to_XML(string|array)
-            Converts JsonML to XML nodes
+        jsonml_xml.to_XML(JsonML-list) 
+            Converts JsonML-list to XML nodes. Not yet.
 
-        jsonml_xml.to_XML_text(JsonML)
-            Converts JsonML to XML text
+        jsonml_xml.to_XML_text(JsonML-list)
+            Converts JsonML-list to XML text. Not yet.
 
         jsonml_xml.from_XML(node)
-            Converts XML nodes to JsonML
+            Converts XML nodes to JsonML-list.
 
         jsonml_xml.from_XML_text(xmlText)
-            Converts XML text to JsonML
+            Converts XML text to JsonML-list.
 """
 from xmlhelper import etree
 
@@ -41,7 +41,7 @@ def _from_XML_with_tail(node):
 
     # Get the text
     if node.text:
-        text = node.text.strip()
+        text = _cleanup_text(node.text)
         if text:
             element.append(text)
 
@@ -49,7 +49,7 @@ def _from_XML_with_tail(node):
     for child in node.getchildren():
         if isinstance(child, basestring):
             # For text ignore whitespace
-            text = child.strip()
+            text = _cleanup_text(child)
             if text:
                 element.append(text)
         else:
@@ -62,8 +62,12 @@ def _from_XML_with_tail(node):
     # Get the tail
     tail = None
     if node.tail:
-        tail = node.tail.strip()
+        tail = _cleanup_text(node.tail)
     return element, tail
+
+
+def _cleanup_text(raw_text, strip_chars=(' ', '\t', '\n')):
+    return raw_text.strip(''.join(strip_chars))
 
 
 def test_from_xml_text():
@@ -163,9 +167,10 @@ def test_from_xml_text():
                  ],
                 "\u00A0"
             ]
-        ]  
+        ]
     ]
     ]]"""
+    # etree.HTML exists in lxml, check that we are using something compatible.
     assert 'HTML' in dir(etree), etree.__file__
     result = from_XML(etree.HTML(complex_text))
     import json
