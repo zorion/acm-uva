@@ -1,30 +1,91 @@
 # -*- coding: utf-8 -*-
 """This package contains these methods:
 
-        jsonml_xml.to_XML(JsonML-list) 
-            Converts JsonML-list to XML nodes. Not yet.
+        jsonml_xml.to_XML(jsonml_list)
+            Converts JsonML-list to XML nodes.
 
-        jsonml_xml.to_XML_text(JsonML-list)
-            Converts JsonML-list to XML text. Not yet.
+        jsonml_xml.to_XML_text(jsonml_list)
+            Converts JsonML-list to XML text.
 
         jsonml_xml.from_XML(node)
             Converts XML nodes to JsonML-list.
 
-        jsonml_xml.from_XML_text(xmlText)
+        jsonml_xml.from_XML_text(xml_text)
             Converts XML text to JsonML-list.
 """
 from xmlhelper import etree
 
 
 def from_XML_text(xml_text):
-    """From an xml_text get the equivalent object."""
+    """From an xml_text get the equivalent JsonML-list.
+
+    >>> test = from_XML_text('<a />')
+    >>> True if test == ['a'] else test
+    True
+    >>> test = from_XML_text('<a></a>')
+    >>> True if test == ['a'] else test
+    True
+    >>> test = from_XML_text('<a t="a"><b>foo</b></a>')
+    >>> True if test == ['a', {'t': 'a'}, ['b', 'foo']] else test
+    True
+    """
     return from_XML(etree.XML(xml_text))
 
 
 def from_XML(node):
-    """From an xml node get the equivalent object."""
+    """From an xml node get the equivalent JsonML-list."""
     result, tail = _from_XML_with_tail(node)
     return result
+
+
+def to_XML_text(jsonml_list):
+    """From JsonML-list to XML text representation.
+
+    >>> test = to_XML_text(['a'])
+    >>> True if test in ['<a />', '<a></a>', '<a/>'] else test
+    True
+    >>> test = to_XML_text(['a', ['b', 'hey']])
+    >>> True if test == '<a><b>hey</b></a>' else test
+    True
+    >>> test = to_XML_text(['a', {'b': 'c'}, 'd'])
+    >>> True if test == '<a b="c">d</a>' else test
+    True
+    >>> test = to_XML_text(['a', 't1', ['b', 't2'], 't3', ['b', 't4'], 't5'])
+    >>> True if test == '<a>t1<b>t2</b>t3<b>t4</b>t5</a>' else test
+    True
+    """
+    return etree.tostring(to_XML(jsonml_list))
+
+
+def to_XML(jsonml_list):
+    """From JsonML-list to XML."""
+    tag = jsonml_list[0]
+    root = etree.Element(tag)
+    list_length = len(jsonml_list)
+    next_item = 1
+    if list_length == 1:
+        return root
+
+    if isinstance(jsonml_list[1], dict):
+        # Attributes
+        next_item = 2
+        for key, value in jsonml_list[1].items():
+            root.set(key, value)
+
+    last_node = None
+    for i in range(next_item, list_length):
+        element = jsonml_list[i]
+        if isinstance(element, basestring):
+            if last_node is None:
+                root.text = element
+            else:
+                last_node.tail = element
+        else:
+            node = to_XML(element)
+            last_node = node
+            root.append(node)
+
+    return root
 
 
 def _from_XML_with_tail(node):
