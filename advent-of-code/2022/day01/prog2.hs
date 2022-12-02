@@ -1,5 +1,7 @@
 
-main = interact prob1
+main = do
+    interact prob1
+    putStrLn ""
 
 prob1 :: String -> String
 prob1 = show.getMax3.groupSum.group
