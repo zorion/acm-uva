@@ -48,8 +48,8 @@ readRow (' ':' ':' ':xs) = ' ':(readRow ys)
 readRow xs = x:(readRow ys)
     where '[':x:']':zs = xs
           ys
-            | length zs == 0 = ""
-            | otherwise = tail zs
+            | length zs == 0 = ""  -- end of line
+            | otherwise = tail zs  -- We need to remove the space
 
 transposeStacks :: [Stack] -> [Stack]
 transposeStacks ([]:_) = []
