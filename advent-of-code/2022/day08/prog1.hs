@@ -1,5 +1,5 @@
-import qualified Data.Map as M
 
+main :: IO ()
 main = do
     interact prob1
     putStrLn ""
