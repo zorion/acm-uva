@@ -5,7 +5,7 @@ main = do
     putStrLn ""
 
 prob1 :: String -> String
-prob1 = show.sum.evaluate.(simulate 1).lines
+prob1 = evaluate.(simulate 1).lines
 
 simulate :: Int -> [String] -> [Int]
 simulate n [] = []
@@ -17,8 +17,13 @@ simulateOp n "noop" = (n, [n])
 simulateOp n ('a':'d':'d':'x':' ':val) = (m, [n, n])
     where m = (read val) + n
 
-evaluate :: [Int] -> [Int]
-evaluate xs = (map (evalVal xs) [20, 60, 100, 140, 180, 220])
+evaluate :: [Int] -> String
+evaluate = getCRT 0
 
-evalVal :: [Int] -> Int -> Int
-evalVal xs n = (xs !! (n-1)) * n  -- Index-0 vs index-1
+getCRT :: Int -> [Int] -> String
+getCRT _ [] = []
+getCRT n (x:xs) = if (mod n 40) == 39 then pixel:endline:nextCRT else pixel:nextCRT
+    where endline = '\n'
+          nextCRT = getCRT (n+1) xs
+          pixel = if abs ((mod n 40)-x) < 2 then '#' else '.'
+
