@@ -22,7 +22,7 @@ fakeRule :: Rule
 fakeRule = ((+0), (==0), 0,0)
 
 
-getStatus :: (Int, Rules, State) -> State
+getStatus :: (Item, Rules, State) -> State
 getStatus (_, _, s) = s
 getInspections :: State -> Inspections
 getInspections (ins, its) = ins
@@ -32,15 +32,15 @@ evaluate (inspections, _) = product (take 2 bestValues)
     where bestValues = qs allValues  --quicksort
           allValues = DM.elems inspections
 
-simulate :: Int -> (Int, Rules, State) -> (Int, Rules, State)
+simulate :: Int -> (Item, Rules, State) -> (Item, Rules, State)
 simulate 0 (reducer, rules, state) = (reducer, rules, state)
 simulate n (reducer, rules, state) = simulate (n-1) (reducer, rules, simulateRound reducer rules state)
 
-simulateRound :: Int -> Rules -> State -> State
+simulateRound :: Item -> Rules -> State -> State
 simulateRound reducer rules state = foldl (simulateTurn reducer rules) state (DM.keys rules)
 
 -- For each item in the Monkey's Items apply the Rule, add Inspections and throw it
-simulateTurn :: Int -> Rules -> State -> Monkey -> State
+simulateTurn :: Item -> Rules -> State -> Monkey -> State
 simulateTurn reducer rules state monkey = foldl (simulateRule reducer ruleMonkey) statePartial oldItemsMonkey
     where (oldInspections, oldItems) = state
           oldInspMonkey = DM.findWithDefault 0 monkey oldInspections
@@ -50,7 +50,7 @@ simulateTurn reducer rules state monkey = foldl (simulateRule reducer ruleMonkey
           itemsPartial = DM.insert monkey [] oldItems
           ruleMonkey = DM.findWithDefault fakeRule monkey rules
 
-simulateRule :: Int -> Rule -> State -> Item -> State
+simulateRule :: Item -> Rule -> State -> Item -> State
 simulateRule reducer rule state item = (inspections, newItems)
     where (op, t, mTrue, mFalse) = rule
           (inspections, oldItems) = state
@@ -72,10 +72,10 @@ simulateRule reducer rule state item = (inspections, newItems)
 --    If false: throw to monkey Int
 --(ENDLINE)
 
-getInput :: String -> (Int, Rules, State)
+getInput :: String -> (Item, Rules, State)
 getInput input = getPartialInput (1, DM.empty, (DM.empty, DM.empty)) 0 (lines input)
 
-getPartialInput :: (Int, Rules, State) -> Monkey -> [String] -> (Int, Rules, State)
+getPartialInput :: (Item, Rules, State) -> Monkey -> [String] -> (Item, Rules, State)
 getPartialInput status _ [] = status
 getPartialInput status n ("":ys) = getPartialInput status n ys
 getPartialInput status _ (('M':'o':'n':'k':'e':'y':' ':xs):ys) = getPartialInput status (read(take 1 xs)) ys
@@ -115,7 +115,7 @@ parseOperation xs
               drop2restOp = drop 2 restOp
 
 --  Test: divisible by Int
-parseTest :: String -> (Int, Item -> Bool)
+parseTest :: String -> (Item, Item -> Bool)
 parseTest xs = (numDiv, \x -> 0 == (mod x numDiv))
     where numDiv= read (drop (length "  Test: divisible by ") xs)
 
