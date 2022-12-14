@@ -16,9 +16,6 @@ getProblems _ [] = []
 getProblems n ("":xs) = getProblems n xs
 getProblems n (x:y:xs) = (n, getPacket x, getPacket y):getProblems (n+1) xs
 
--- [ -> getSubpacket
--- , -> continue previous
--- ] -> return (finished)
 getPacket :: String -> Packet
 getPacket input = packet
     where tokens = parseTokens input
@@ -51,27 +48,6 @@ parseTokens xs = Val num:parseTokens rest
           (toPar, fromPar) = break (==']') toComma
           num = read toPar
           rest = fromPar ++ fromComma
-
--- -- Result is the packet got, pending string and shallContinue
--- getSubpacket :: String -> (Packet, String, Bool)
--- getSubpacket "" = (List [], "", False)
--- getSubpacket (']':ys) = (List [], tys, hys) 
---     where lys = length ys
---           hys = if lys > 0 then head ys == ',' else False
---           tys = if hys then tail ys else ys
--- getSubpacket (',':xs) = (subPack, ys, True)
---     where (subPack, ys, cont) = getSubpacket xs
--- getSubpacket ('[':xs) = (subPack, tys, hys)
---     where (subPack1, zs, cont) = getSubpacket xs
---           lys = length ys
---           hys = if lys > 0 then head ys == ',' else False
---           tys = if hys then tail ys else ys
--- getSubpacket xs = (subPack1, tys, hys)
---     where
---           lys = length ys
---           hys = if lys > 0 then head ys == ',' else False
---           tys = if hys then tail ys else ys
-
 
 getOrdered :: (Int, Packet, Packet) ->  Int
 getOrdered (n,pA,pB) = case isOrdered pA pB of
