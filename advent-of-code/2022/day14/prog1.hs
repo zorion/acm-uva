@@ -6,10 +6,52 @@ main = do
     putStrLn ""
 
 prob1 :: String -> String
-prob1 = show.getRocks.lines
+prob1 = show.length.simulate.getMinRock.getRocks.lines
 
 type Rocks = Set.Set Pos
 type Pos = (Int, Int)
+
+positionInitial :: Pos
+positionInitial = (500,0)
+
+simulate :: (Int, Rocks) -> [Rocks]
+simulate (minRock, r) = if r == r' then [] else r:res'
+    where
+        r' = dropSand minRock r positionInitial
+        res' = simulate (minRock, r')
+
+extendRock :: Rocks -> Rocks -> Bool
+extendRock a b = Set.null $ Set.difference b a
+
+dropSand :: Int -> Rocks -> Pos -> Rocks
+dropSand n r p
+    | n < y = r
+    | isFree r downPos = dropSand n r downPos
+    | isFree r dleftPos = dropSand n r dleftPos
+    | isFree r drightPos = dropSand n r drightPos
+    | otherwise = addRock r p
+        where downPos = movePos p (0,1)
+              dleftPos = movePos p (-1,1)
+              drightPos = movePos p (1,1)
+              (_, y) = p
+
+addRock :: Rocks -> Pos -> Rocks
+addRock r p = Set.insert p r
+
+movePos :: Pos -> Pos -> Pos
+movePos (a, b) (x, y) = (a+x, b+y)
+
+isFree :: Rocks -> Pos -> Bool
+isFree r p = not $ Set.member p r
+
+------------------------
+-- Read the input
+------------------------
+
+getMinRock :: Rocks -> (Int, Rocks)
+getMinRock rs = (maxYNum , rs)  -- Then minimum position is what have the maximum Y
+    where maxYNum = Set.foldl getMaxY 0 rs
+          getMaxY n (_,y) = if n < y then y else n
 
 getRocks :: [String] -> Rocks
 getRocks [] = Set.empty
