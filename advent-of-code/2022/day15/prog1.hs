@@ -1,6 +1,6 @@
 
 test :: Bool -- sample needs line 10 and my input line 2 000 000
-test = True
+test = False
 
 main :: IO ()
 main = do
@@ -8,7 +8,7 @@ main = do
     putStrLn ""
 
 prob1 :: String -> String
-prob1 = show.readMap
+prob1 = show.sizeSegments.removeBeacons.getSegments.readMap
 
 type Result = Segments
 type SenBea = (Sensor, Beacon)
@@ -22,6 +22,23 @@ type Segment = (Mint, Mint)
 lineCheck :: Mint
 lineCheck = if test then 10 else 2*1000*1000
 
+getManhattan :: Sensor -> Beacon -> Mint
+getManhattan (a, b) (x, y) = (abs (a-x)) + (abs (b-y))
+
+getSegment :: Sensor -> Mint -> Segment
+getSegment (a, b) size = (a - pendingSize, a + pendingSize)
+    where pendingSize = if size - done > 0 then size - done else 0
+          done = abs (b - lineCheck)
+
+getSegments :: [(Sensor, Beacon)] -> (Segments, [Beacon])
+getSegments inpairs = (segments, beacons)
+    where foo a b = addSegment a (newSegment b)
+          newSegment (sensor, beacon) = getSegment sensor (getManhattan sensor beacon)
+          segments = foldl foo [] inpairs
+          beacons = map snd inpairs
+
+removeBeacons :: (Segments, [Beacon]) -> Segments
+removeBeacons (segments, beacons) = foldl removePoint segments beacons
 
 ----------------------------------------------
 -- Segment
@@ -44,7 +61,15 @@ addSegment group new = (minIntersect, maxIntersect):disjointSegments
 intersectSeg :: Segment -> Segment -> Bool
 intersectSeg (a, b) (x, y) = and [a<=y, x<=b]
 
-
+removePoint :: Segments -> Beacon -> Segments
+removePoint segs (x, y) = if y==lineCheck then foldl (splitIfRequired x) [] segs else segs
+    where splitIfRequired pt segments (low, high)
+            | pt < low = addSegment segments (low, high)
+            | pt > high = addSegment segments (low, high)
+            | and[pt==low, pt==high] = segments
+            | pt == low = addSegment segments (low+1, high)
+            | pt == high = addSegment segments (low, high-1)
+            | otherwise = addSegment (addSegment segments (low, pt-1)) (pt+1, high)
 
 ----------------------------------------------
 -- Read Input
