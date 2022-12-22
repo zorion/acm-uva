@@ -25,14 +25,18 @@ lineCheck = if test then 10 else 2*1000*1000
 getManhattan :: Sensor -> Beacon -> Mint
 getManhattan (a, b) (x, y) = (abs (a-x)) + (abs (b-y))
 
-getSegment :: Sensor -> Mint -> Segment
-getSegment (a, b) size = (a - pendingSize, a + pendingSize)
-    where pendingSize = if size - done > 0 then size - done else 0
+getSegment :: Sensor -> Mint -> Maybe Segment
+getSegment (a, b) size = case pendingSize of
+    Just psize -> Just (a - psize, a + psize)
+    Nothing -> Nothing
+    where pendingSize = if size - done > 0 then Just (size - done) else Nothing
           done = abs (b - lineCheck)
 
 getSegments :: [(Sensor, Beacon)] -> (Segments, [Beacon])
 getSegments inpairs = (segments, beacons)
-    where foo a b = addSegment a (newSegment b)
+    where foo a b = case newSegment b of
+            Nothing -> a
+            Just seg -> addSegment a (seg)
           newSegment (sensor, beacon) = getSegment sensor (getManhattan sensor beacon)
           segments = foldl foo [] inpairs
           beacons = map snd inpairs
