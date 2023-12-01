@@ -5,8 +5,13 @@ main = do
     putStrLn ""
 
 prob1 :: String -> String
-prob1 = show.readIn
+prob1 = show.solve1.readIn
 
+-- SUM
+solve1 :: [Int] -> (Int, [Int])
+solve1 x = (sum x, x)
+
+-- READ
 readIn :: String -> [Int]
 readIn x = map readNum (lines x)
 
