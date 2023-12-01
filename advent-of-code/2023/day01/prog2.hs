@@ -37,5 +37,14 @@ getFirstToken x
     | take 1 x == "7" = Just 7
     | take 1 x == "8" = Just 8
     | take 1 x == "9" = Just 9
+    | take 3 x == "one" = Just 1
+    | take 3 x == "two" = Just 2
+    | take 5 x == "three" = Just 3
+    | take 4 x == "four" = Just 4
+    | take 4 x == "five" = Just 5
+    | take 3 x == "six" = Just 6
+    | take 5 x == "seven" = Just 7
+    | take 5 x == "eight" = Just 8
+    | take 4 x == "nine" = Just 9
     | otherwise = Nothing
     
