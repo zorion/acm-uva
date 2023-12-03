@@ -29,7 +29,16 @@ solve x = (sumValid x, x)
 
 sumValid :: [Game] -> Int
 sumValid [] = 0
-sumValid (x : xs) = sumValid xs + fst x
+sumValid (x : xs) = sumValid xs + (if isValid(snd x) then fst x else 0)
+
+isValid :: [CubeSet] -> Bool
+isValid = foldr((&&).isValid') True
+
+isValid' :: CubeSet -> Bool
+isValid' cubes = (reds <= 12) && (blues <= 13) && (greens <= 14)
+  where
+    (reds, greens, blues) = cubes
+
 
 -- READ
 readIn :: String -> [Game]
