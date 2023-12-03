@@ -24,18 +24,21 @@ type Cubes = Int
 
 -- LOGIC
 
-solve :: [Game] -> (Int, [Game])
-solve x = (sumValid x, x)
+solve :: [Game] -> (Int, [Game], String, [Game])
+solve x = (sumValid x, filter isValidGame x, "00000000000000", filter (not.isValidGame) x)
 
 sumValid :: [Game] -> Int
 sumValid [] = 0
 sumValid (x : xs) = sumValid xs + (if isValid(snd x) then fst x else 0)
 
+isValidGame :: Game -> Bool
+isValidGame = isValid.snd
+
 isValid :: [CubeSet] -> Bool
 isValid = foldr((&&).isValid') True
 
 isValid' :: CubeSet -> Bool
-isValid' cubes = (reds <= 12) && (blues <= 13) && (greens <= 14)
+isValid' cubes = (reds <= 12) && (greens <= 13) && (blues <= 14)
   where
     (reds, greens, blues) = cubes
 
