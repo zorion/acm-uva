@@ -25,7 +25,7 @@ type Cubes = Int
 -- LOGIC
 
 solve :: [Game] -> Int
-solve x = sumPower  x -- (filter isValidGame x)
+solve = sumPower
 
 
 sumPower :: [Game]  -> Int
@@ -40,17 +40,6 @@ getPower (_, cubeSet) = maxRed * maxGreen * maxBlue
     first (x, _, _) = x
     second (_, x, _) = x
     third (_, _, x) = x
-
-isValidGame :: Game -> Bool
-isValidGame = isValid.snd
-
-isValid :: [CubeSet] -> Bool
-isValid = foldr((&&).isValid') True
-
-isValid' :: CubeSet -> Bool
-isValid' cubes = (reds <= 12) && (greens <= 13) && (blues <= 14)
-  where
-    (reds, greens, blues) = cubes
 
 
 -- READ
