@@ -83,7 +83,13 @@ getFromNum x y acc bKeep eng =
     b = bKeep || shouldKeep x y eng
 
 shouldKeep :: Int -> Int -> Engine -> Bool
-shouldKeep x y eng = or [isNice (charAtEngine eng (a, b)) | a <- [x - 1, x, x + 1], b <- [y - 1, y, y + 1], doesExist (a, b) eng]
+shouldKeep x y eng =
+  or
+    [ isNice (charAtEngine eng (a, b))
+      | a <- [x - 1, x, x + 1],
+        b <- [y - 1, y, y + 1],
+        doesExist (a, b) eng
+    ]
 
 isNice :: Char -> Bool
 isNice c
