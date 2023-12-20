@@ -10,6 +10,9 @@ prob1 :: String -> String
 prob1 = show.(getMaxPath maxSteps initNode).getAlongShortestPaths.readGraph
     where maxSteps = 26
           initNode = "AA"
+-- sample == 1707
+-- myin > 2510
+-- myin > 2520
 
 type Enabled = Set.Set Valve
 type Valve = String
@@ -38,16 +41,17 @@ getMaxSubPath paths valves enabled (valve1, valve2) (steps1, steps2) = maxResult
           isUsable x = and [not.isEnabled $ x, hasPressure x]
           isEnabled x = Set.member x enabled                      -- (not yet) opened
           hasPressure x = 0 < fst(valves Map.! x)                 -- has pressure
-          partialResults = map getRecMaxSubPath $ zipAll (candidates valve1) (candidates valve2)
+          partialResults = map getRecMaxSubPath $ zipDiff (candidates valve1) (candidates valve2)
           getRecMaxSubPath (x, y) = if or[x==y, newStepsX<0, newStepsY<0]
                                     then 0
-                                    else thisPressureX*newStepsX + thisPressureY*newStepsY + recSteps
+                                    else recMaxSubPathCandidate
             where thisPressureX = fst $ valves Map.! x
                   thisPressureY = fst $ valves Map.! y
-                  newStepsX = steps1 - (candidateMaps valve1) Map.! x - 1  -- move to x + open it
-                  newStepsY = steps2 - (candidateMaps valve2) Map.! y - 1  -- move to y + open it
+                  newStepsX = steps1 - 1 - (candidateMaps valve1) Map.! x  -- move to x + open it
+                  newStepsY = steps2 - 1 - (candidateMaps valve2) Map.! y  -- move to y + open it
                   recSteps = getMaxSubPath paths valves newEnabled (x, y) (newStepsX, newStepsY)
-                  newEnabled = Set.insert y (Set.insert x enabled)
+                  newEnabled = Set.insert y (Set.insert x enabled)         -- add x and y to enabled
+                  recMaxSubPathCandidate = thisPressureX*newStepsX + thisPressureY*newStepsY + recSteps
 
 maxResult :: [Pressure] -> Pressure
 maxResult = foldl max 0
@@ -57,6 +61,11 @@ zipAll    []     ys   = []
 zipAll    [x]    ys   = map (\y -> (x, y)) ys
 zipAll    (x:xs) ys   = zipAll [x] ys ++ zipAll xs ys
 
+zipDiff :: Eq a => [a] -> [a] -> [(a, a)]
+zipDiff xs ys = filter (\(x,y)->x/=y) $ zipAll xs ys
+
+zipAll' :: [a] -> [b] -> [(a, b)]
+zipAll'    xs     ys   = [(x, y)| x<-xs, y<-ys]
 ----------------------------------------------
 -- Get all shortest paths using Floyd-Warshall
 ----------------------------------------------
