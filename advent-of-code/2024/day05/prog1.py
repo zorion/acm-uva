@@ -5,7 +5,7 @@ def main():
     print_results(ok_pages)
 
 
-type TypeRules = list[tuple[int, int]]
+type TypeRules = dict[int, set[int]]
 
 
 def find_ok_pages(rules: TypeRules, list_pages: list[list[int]]) -> list[list[int]]:
@@ -17,15 +17,14 @@ def check_page(pages: list[int], rules: TypeRules) -> bool:
         for j, page_right in enumerate(pages):
             if i >= j:
                 continue
-            for rule in rules:
-                if rule == (page_right, page_left):
-                    return False
+            if page_right in rules.get(page_left, {}):
+                return False
     return True
 
 
 def read_rules() -> TypeRules:
     finished = False
-    res = []
+    res = {}
     while not finished:
         try:
             line = input()
@@ -34,7 +33,10 @@ def read_rules() -> TypeRules:
         if line == "":
             finished = True
         else:
-            res.append(tuple(map(int, line.split("|"))))
+            x, y = tuple(map(int, line.split("|")))
+            if y not in res:
+                res[y] = set()
+            res[y].add(x)
     return res
 
 
