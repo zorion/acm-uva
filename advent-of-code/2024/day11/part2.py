@@ -5,7 +5,8 @@ from functools import lru_cache
 
 def main():
     stones = read_list_of_stones()
-    res = blink(stones, 25)
+    for i in range(76):
+        res = blink(stones, i)
     print_results(res)
 
 
@@ -17,7 +18,7 @@ def blink(stones: list[int], steps: int) -> list[int]:
     return result
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def blink_stone(stone: int, steps: int) -> int:
     if steps == 0:
         return 1
