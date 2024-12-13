@@ -15,7 +15,7 @@ def get_price(garden: Garden) -> int:
     visited: Visited = set()
     price: int = 0
     for y, line in enumerate(garden):
-        for x, val in enumerate(line):
+        for x, _ in enumerate(line):
             area, perimeter = explore(x, y, garden, visited)
             price += area * perimeter
     return price
