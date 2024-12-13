@@ -41,19 +41,24 @@ def solve_claw_machine(machine: ClawMachine) -> int:
     if (j_den := ax * by - ay * bx) == 0:
         return 0
     else:
+        # assume j is an integer value
         j = (ax * py - ay * px) // j_den
     if ax == 0:
         if ay == 0:
             return 0
         else:
+            # assume i is an integer value
             i = (py - by * j) // by
     else:
+        # assume i is an integer value
         i = (px - bx * j) // ax
 
     result = 3 * i + j
-    if px == ax * i + bx * j and py == ay * i + by * j:
+    if px == ax * i + bx * j and py == ay * i + by * j and i >= 0 and j >= 0:
+        # Check the assumption i and j were natural
         return result
     else:
+        # They were not
         return 0
 
 
