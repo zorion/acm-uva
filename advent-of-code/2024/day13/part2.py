@@ -25,21 +25,40 @@ def solve_puzzle(claw_list: list[ClawMachine]) -> int:
 
 
 def solve_claw_machine(machine: ClawMachine) -> int:
-    # Not diophantine solution: HARD
     button_a, button_b, prize = machine
-    for i in range(101):
-        for j in range(101):
-            if add_pos(move_times(button_a, i), move_times(button_b, j)) == prize:
-                return 3 * i + j
-    return 0
+    px, py = prize
+    ax, ay = button_a
+    bx, by = button_b
+    # px = ax * i + bx * j
+    # py = ay * i + by * j
+    # i = (px - bx * j) / ax
+    # i = (py - by * j) / ay
+    # ax * (py - by * j) = ay * (px - bx * j)
+    # ax * py - ax * by * j = ay * px - ay * bx * j
+    # j * (ax * by - ay * bx) = ax * py - ay * px
+    # j = (ax * py - ay * px) / (ax * by - ay * bx)
+    # result = min(3 * i + j) if it is possible else 0
+    if (j_den := ax * by - ay * bx) == 0:
+        return 0
+    else:
+        j = (ax * py - ay * px) // j_den
+    if ax == 0:
+        if ay == 0:
+            return 0
+        else:
+            i = (py - by * j) // by
+    else:
+        i = (px - bx * j) // ax
+
+    result = 3 * i + j
+    if px == ax * i + bx * j and py == ay * i + by * j:
+        return result
+    else:
+        return 0
 
 
 def add_pos(a: Position, b: Position) -> Position:
     return (a[0] + b[0], a[1] + b[1])
-
-
-def move_times(a: Position, n: int) -> Position:
-    return (a[0] * n, a[1] * n)
 
 
 def read_claw_list() -> list[ClawMachine]:

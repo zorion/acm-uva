@@ -23,7 +23,7 @@ def solve_puzzle(claw_list: list[ClawMachine]) -> int:
 
 
 def solve_claw_machine(machine: ClawMachine) -> int:
-    # Not diophantine solution: HARD
+    # Not diophantine solution: Brute force!
     button_a, button_b, prize = machine
     for i in range(101):
         for j in range(101):
