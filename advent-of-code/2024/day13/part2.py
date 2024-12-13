@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 
+EXTRA_PRIZE = 10000000000000
+
 type Position = tuple[int, int]
 type Button = Position
 type Prize = Position
@@ -76,7 +78,7 @@ def _append_claw(
     assert button_a is not None, "Assert not partial"
     assert button_b is not None, "Assert not partial"
     assert prize is not None, "Assert not partial"
-    claw_list.append((button_a, button_b, prize))
+    claw_list.append((button_a, button_b, add_pos(prize, (EXTRA_PRIZE, EXTRA_PRIZE))))
 
 
 def print_results(result: int) -> None:
