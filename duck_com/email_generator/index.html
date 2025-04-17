@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Duck.com Email Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      background: #f4f4f9;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+    input {
+      padding: 0.5em;
+      width: 100%;
+      margin-top: 0.3em;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 1.5em;
+      padding: 0.7em 1.5em;
+      font-size: 1em;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    #result {
+      margin-top: 2em;
+      font-size: 1.1em;
+      background: #fff;
+      padding: 1em;
+      border-left: 4px solid #0077cc;
+      word-break: break-word;
+      position: relative;
+    }
+    #copyButton {
+      margin-top: 1em;
+      display: none;
+    }
+    #copyMsg {
+      color: green;
+      margin-top: 0.5em;
+      font-size: 0.9em;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Duck.com Redirect Email Generator</h1>
+
+  <label for="duck">Your Duck.com Email (e.g. example@duck.com):</label>
+  <input type="email" id="duck" placeholder="example@duck.com">
+
+  <label for="dest">Destination Email (e.g. destination@example.com):</label>
+  <input type="email" id="dest" placeholder="destination@example.com">
+
+  <button onclick="generate()">Generate Redirect Email</button>
+
+  <div id="result"></div>
+  <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+  <div id="copyMsg">Copied to clipboard!</div>
+
+  <script>
+    let generatedEmail = "";
+
+    function generate() {
+      const duck = document.getElementById('duck').value.trim();
+      const dest = document.getElementById('dest').value.trim();
+      const resultDiv = document.getElementById('result');
+      const copyBtn = document.getElementById('copyButton');
+      const copyMsg = document.getElementById('copyMsg');
+
+      copyMsg.style.display = "none";
+
+      if (!duck || !dest || !duck.includes('@') || !dest.includes('@')) {
+        resultDiv.textContent = "Please enter valid email addresses.";
+        copyBtn.style.display = "none";
+        return;
+      }
+
+      const duckLocal = duck.split('@')[0];
+      const destParts = dest.split('@');
+      generatedEmail = `${destParts[0]}_at_${destParts[1]}_${duckLocal}@duck.com`;
+
+      resultDiv.textContent = `Send your email to: ${generatedEmail}`;
+      copyBtn.style.display = "inline-block";
+    }
+
+    function copyToClipboard() {
+      navigator.clipboard.writeText(generatedEmail).then(() => {
+        const copyMsg = document.getElementById('copyMsg');
+        copyMsg.style.display = "block";
+        setTimeout(() => copyMsg.style.display = "none", 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
