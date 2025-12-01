@@ -33,3 +33,9 @@
 
 # Python compiled
 *.pyc
+
+# MacOS weird things
+.DS_Store
+
+# vim weird locks
+*.swp
