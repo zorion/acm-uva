@@ -1,6 +1,7 @@
 Line = str
 Lines = list[Line]
-Problem = tuple[list[str], list[list[int]]]
+Puzzle = tuple[str, list[int]]
+Problem = list[Puzzle]
 Result = int
 
 DEBUG = True
@@ -8,17 +9,28 @@ DEBUG = True
 
 def read_data() -> Problem:
     raw = read_subproblem()
-    ops, data = to_problem(raw)
-    log_print(ops)
-    log_print(data)
-    assert {len(ops)} == {len(r) for r in data}
-    return ops, data
+    puzzles = to_problem(raw)
+    return puzzles
 
 
 def to_problem(raw: Lines) -> Problem:
-    ops = [op.strip() for op in raw[-1].split()]
-    data = [[int(v) for v in row.split()] for row in raw[:-1]]
-    return ops, data
+    puzzles = []
+    aux = []
+    for i in reversed(range(len(raw[0]))):
+        val = []
+        for r in raw[:-1]:
+            val.append(r[i])
+        log_print(i, val)
+        if set(val) == {" "}:
+            log_print("continue", op)
+            continue
+        aux.append(int("".join(val)))
+        op = raw[-1][i]
+        if op != " ":
+            log_print("add", op, aux)
+            puzzles.append((op, aux))
+            aux = []
+    return puzzles
 
 
 def read_subproblem() -> Lines:
@@ -37,10 +49,10 @@ def read_subproblem() -> Lines:
 
 
 def run(problem: Problem) -> Result:
-    ops, data = problem
     res = 0
-    for i, op in enumerate(ops):
-        aux = apply_op(op, [ro[i] for ro in data])
+    for puzzle in problem:
+        op, data = puzzle
+        aux = apply_op(op, data)
         res += aux
     return res
 
