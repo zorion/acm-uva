@@ -16,6 +16,7 @@ def read_data() -> Problem:
 def to_problem(raw: Lines) -> Problem:
     puzzles = []
     aux = []
+    op = "unused yet"
     for i in reversed(range(len(raw[0]))):
         val = []
         for r in raw[:-1]:
