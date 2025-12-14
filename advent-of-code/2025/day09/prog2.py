@@ -82,9 +82,9 @@ def is_rectangle_contained(polygon: list[Point], p1: Point, p2: Point) -> bool:
         return False
     if not is_line_also_contained(polygon, (min_x, min_y), (max_x, min_y)):
         return False
-    if not is_line_also_contained(polygon, (max_x, max_y), (min_x, max_y)):
+    if not is_line_also_contained(polygon, (min_x, max_y), (max_x, max_y)):
         return False
-    if not is_line_also_contained(polygon, (max_x, max_y), (max_x, min_y)):
+    if not is_line_also_contained(polygon, (max_x, min_y), (max_x, max_y)):
         return False
 
     return True
@@ -94,16 +94,15 @@ def is_line_also_contained(polygon: list[Point], p1: Point, p2: Point) -> bool:
     """Provided p1 and p2 are within polygon, is the segment p1-p2 as well?"""
     pi = polygon[-1]
     for pj in polygon:
-        if do_segments_intersect(pi, pj, p1, p2):
+        if do_segments_intersect_to_external(pi, pj, p1, p2, polygon):
             return False
+        pi = pj
     return True
 
 
-def _are_parallel(vi: Vector, vp: Vector) -> bool:
-    return vi[0] * vp[1] == vi[1] * vp[0]
-
-
-def do_segments_intersect(pi: Point, pj: Point, p1: Point, p2: Point) -> bool:
+def do_segments_intersect_to_external(
+    pi: Point, pj: Point, p1: Point, p2: Point, polygon: list[Point]
+) -> bool:
     """Do segments pi-pj and p1-p2 intersect?
 
     We check if the inner part of the line p1-p2 intersects this edge of the polygon
@@ -127,18 +126,34 @@ def do_segments_intersect(pi: Point, pj: Point, p1: Point, p2: Point) -> bool:
 
     Check if 0 < mu < 1
 
+    NEVER MIND: the vectora are either (alpha, 0) or (0, beta), so use it!
+
     """
-    vi = (pj[0] - pi[0], pj[1] - pi[1])
-    vp = (p2[0] - p1[0], p2[1] - p1[1])
-    if _are_parallel(vi, vp):
-        log_print("Parallel", vi, vp, "from", pi, pj, p1, p2)
+    if is_horizontal(pi, pj) == is_horizontal(p1, p2):
+        # They are parallel, don't intersect
         return False
-    log_print("Not parallel", vi, vp, "from", pi, pj, p1, p2)
-    mu = ((pi[0] - p1[0]) / (pj[0] - pi[0]) - (pi[1] - p1[1]) / (pj[1] - pi[1])) / (
-        (p2[1] - p1[1]) / (pj[1] - pi[1]) - (p2[0] - p1[0]) / (pj[0] - pi[0])
-    )
-    log_print("mu", mu, "from", pi, pj, p1, p2)
-    return 0 < mu < 1
+    if is_horizontal(p1, p2):
+        # p1-p2 has its y fixed, so we interect at x = pi[0] ( ==pj[0])
+        x = pi[0]
+        if min(p1[0], p2[0]) < x < max(p1[0], p2[0]):
+            y = p1[1]
+            left_ok = is_point_contained(polygon, (x - 1, y))
+            right_ok = is_point_contained(polygon, (x + 1, y))
+            return not (left_ok and right_ok)
+    else:
+        # p1-p2 has its x fixed, so we interect at y = pi[1] ( ==pj[1])
+        y = pi[1]
+        if min(p1[1], p2[1]) < y < max(p1[1], p2[1]):
+            x = p1[0]
+            up_ok = is_point_contained(polygon, (x, y - 1))
+            down_ok = is_point_contained(polygon, (x, y + 1))
+            return not (up_ok and down_ok)
+    # We found an intersection, but it is not inside our segment.
+    return False
+
+
+def is_horizontal(p1: Point, p2: Point) -> bool:
+    return p1[1] == p2[1]
 
 
 def is_point_contained(polygon: list[Point], point: Point) -> bool:
