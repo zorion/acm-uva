@@ -37,7 +37,7 @@ def run(problem: Problem) -> Result:
 
 
 def area(p1: Point, p2: Point):
-    return abs(p1[0] - p2[0] + 1) * abs(p1[1] - p2[1] + 1)
+    return (abs(p1[0] - p2[0]) + 1) * (abs(p1[1] - p2[1]) + 1)
 
 
 def parse_problem(problem: Problem) -> list[Point]:
@@ -77,7 +77,7 @@ def is_rectangle_contained(polygon: list[Point], p1: Point, p2: Point) -> bool:
         return False
     if not is_point_contained(polygon, (max_x, max_y)):
         return False
-    # Check the 4 rectangle's edges
+    # Check the 4 rectangle's edges intersection
     if not is_line_also_contained(polygon, (min_x, min_y), (min_x, max_y)):
         return False
     if not is_line_also_contained(polygon, (min_x, min_y), (max_x, min_y)):
@@ -126,27 +126,31 @@ def do_segments_intersect_to_external(
 
     Check if 0 < mu < 1
 
-    NEVER MIND: the vectora are either (alpha, 0) or (0, beta), so use it!
+    NEVER MIND: the vectors are either (alpha, 0) or (0, beta), so use it!
 
     """
     if is_horizontal(pi, pj) == is_horizontal(p1, p2):
-        # They are parallel, don't intersect
+        # They are parallel, don't intersect (or contained, we don't mind)
         return False
     if is_horizontal(p1, p2):
         # p1-p2 has its y fixed, so we interect at x = pi[0] ( ==pj[0])
         x = pi[0]
         if min(p1[0], p2[0]) < x < max(p1[0], p2[0]):
+            # intersection within the segment, check if left and righ ok
             y = p1[1]
             left_ok = is_point_contained(polygon, (x - 1, y))
             right_ok = is_point_contained(polygon, (x + 1, y))
+            # if both are within, we don't consider the intersection
             return not (left_ok and right_ok)
     else:
         # p1-p2 has its x fixed, so we interect at y = pi[1] ( ==pj[1])
         y = pi[1]
         if min(p1[1], p2[1]) < y < max(p1[1], p2[1]):
+            # intersection within the segment, check if up and down ok
             x = p1[0]
             up_ok = is_point_contained(polygon, (x, y - 1))
             down_ok = is_point_contained(polygon, (x, y + 1))
+            # if both are within, we don't consider the intersection
             return not (up_ok and down_ok)
     # We found an intersection, but it is not inside our segment.
     return False
